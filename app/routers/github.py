@@ -42,8 +42,10 @@ def get_profile(username: str):
             "avatar": data.get("avatar_url")
         }
 
+
         profile_data["developer_analysis"] = analyze_developer(
-            profile_data
+        profile_data["public_repos"],
+        profile_data["followers"]
         )
 
         return profile_data
