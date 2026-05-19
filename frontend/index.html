@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GitWrapped 🚀</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="background-glow"></div>
+
+    <div class="container">
+
+        <h1>GitWrapped 🚀</h1>
+
+        <p class="subtitle">
+            Spotify Wrapped for Developers
+        </p>
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter GitHub Username"
+            >
+
+            <button onclick="getProfile()">
+                Analyze Developer
+            </button>
+
+        </div>
+
+        <div id="loading"></div>
+
+        <div id="profile-card"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
