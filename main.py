@@ -4,12 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import github
 
 app = FastAPI(
-    title="GitWrapped API",
-    description="Spotify Wrapped for Developers 🚀",
+    title="GitWrapped 🚀",
+    description="Spotify Wrapped for Developers",
     version="1.0.0"
 )
-
-# CORS
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,7 +21,6 @@ app.include_router(github.router)
 
 @app.get("/")
 def home():
-
     return {
         "project": "GitWrapped",
         "message": "Spotify Wrapped for Developers 🚀"

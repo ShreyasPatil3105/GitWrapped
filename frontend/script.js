@@ -8,9 +8,9 @@ async function getProfile() {
         document.getElementById("loading").innerHTML =
             "🚀 Analyzing Developer...";
 
-        const response = await fetch(
-            `http://127.0.0.1:8000/profile/${username}`
-        );
+const response = await fetch(
+    `https://gitwrapped.onrender.com/profile/${username}`
+);
 
         const data = await response.json();
 
