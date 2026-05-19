@@ -1,16 +1,23 @@
 from fastapi import APIRouter
-from app.services.analyzer import analyze_developer
+from app.services.analyzer import (
+    analyze_developer,
+    analyze_languages
+)
+
 import requests
 import os
 
 router = APIRouter()
+
 
 @router.get("/profile/{username}")
 def get_profile(username: str):
 
     try:
 
-        url = f"https://api.github.com/users/{username}"
+        # User profile API
+
+        user_url = f"https://api.github.com/users/{username}"
 
         headers = {
             "Accept": "application/vnd.github+json",
@@ -18,41 +25,82 @@ def get_profile(username: str):
             "User-Agent": "GitWrapped-App"
         }
 
-        response = requests.get(url, headers=headers)
-
-        print("STATUS:", response.status_code)
-
-        data = response.json()
-
-        print(data)
-
-        if response.status_code != 200:
-            return {
-                "error": f"GitHub user not found ({response.status_code})"
-            }
-
-        profile_data = {
-            "username": data.get("login"),
-            "name": data.get("name"),
-            "bio": data.get("bio"),
-            "public_repos": data.get("public_repos"),
-            "followers": data.get("followers"),
-            "following": data.get("following"),
-            "profile_url": data.get("html_url"),
-            "avatar": data.get("avatar_url")
-        }
-
-
-        profile_data["developer_analysis"] = analyze_developer(
-        profile_data["public_repos"],
-        profile_data["followers"]
+        user_response = requests.get(
+            user_url,
+            headers=headers
         )
 
-        return profile_data
+        if user_response.status_code != 200:
+
+            return {
+                "error":
+                f"GitHub user not found ({user_response.status_code})"
+            }
+
+        user_data = user_response.json()
+
+        # Repositories API
+
+        repos_url = f"https://api.github.com/users/{username}/repos"
+
+        repos_response = requests.get(
+            repos_url,
+            headers=headers
+        )
+
+        repos_data = repos_response.json()
+
+        # Main profile data
+
+        profile_data = {
+
+            "username": user_data.get("login"),
+
+            "name": user_data.get("name"),
+
+            "bio": user_data.get("bio"),
+
+            "public_repos": user_data.get("public_repos"),
+
+            "followers": user_data.get("followers"),
+
+            "following": user_data.get("following"),
+
+            "profile_url": user_data.get("html_url"),
+
+            "avatar": user_data.get("avatar_url")
+        }
+
+        # Developer analysis
+
+        developer_analysis = analyze_developer(
+            profile_data["public_repos"],
+            profile_data["followers"]
+        )
+
+        # Language analysis
+
+        language_analysis = analyze_languages(
+            repos_data
+        )
+
+        # Final response
+
+        return {
+
+            **profile_data,
+
+            "developer_analysis":
+                developer_analysis,
+
+            "language_analysis":
+                language_analysis
+        }
 
     except Exception as e:
 
         return {
             "error": str(e)
         }
+    
     
