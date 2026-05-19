@@ -1,51 +1,52 @@
 from fastapi import APIRouter
+from app.services.analyzer import analyze_developer
 import requests
-
-from app.services.analyzer import (
-    analyze_developer,
-    analyze_languages
-)
 
 router = APIRouter()
 
-@router.get("/profile/{username}")
-def get_github_profile(username: str):
 
-    # GitHub profile API
+def get_github_profile(username):
+
     url = f"https://api.github.com/users/{username}"
 
-    response = requests.get(url)
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "GitWrapped-App"
+    }
+
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return {"error": "GitHub user not found"}
+
+        return {
+            "error": f"GitHub user not found ({response.status_code})"
+        }
 
     data = response.json()
 
-    # GitHub repos API
-    repos_url = f"https://api.github.com/users/{username}/repos"
+    return {
+        "username": data.get("login"),
+        "name": data.get("name"),
+        "bio": data.get("bio"),
+        "public_repos": data.get("public_repos"),
+        "followers": data.get("followers"),
+        "following": data.get("following"),
+        "profile_url": data.get("html_url"),
+        "avatar": data.get("avatar_url")
+    }
 
-    repos_response = requests.get(repos_url)
 
-    repos_data = repos_response.json()
+@router.get("/profile/{username}")
+def profile(username: str):
 
-    # Developer analysis
-    analysis = analyze_developer(
-        data["public_repos"],
-        data["followers"]
-    )
+    profile_data = get_github_profile(username)
 
-    # Language analysis
-    language_analysis = analyze_languages(repos_data)
+    if "error" in profile_data:
+        return profile_data
+
+    analysis = analyze_developer(profile_data)
 
     return {
-        "username": data["login"],
-        "name": data["name"],
-        "bio": data["bio"],
-        "public_repos": data["public_repos"],
-        "followers": data["followers"],
-        "following": data["following"],
-        "profile_url": data["html_url"],
-        "avatar": data["avatar_url"],
-        "developer_analysis": analysis,
-        "language_analysis": language_analysis
+        **profile_data,
+        **analysis
     }
