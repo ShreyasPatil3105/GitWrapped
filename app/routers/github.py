@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter
 from app.services.analyzer import analyze_developer
 import requests
@@ -9,9 +10,11 @@ def get_github_profile(username):
 
     url = f"https://api.github.com/users/{username}"
 
+
     headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "GitWrapped-App"
+    "Accept": "application/vnd.github+json",
+    "Authorization": f"Bearer {os.getenv('GITHUB_TOKEN')}",
+    "User-Agent": "GitWrapped-App"
     }
 
     response = requests.get(url, headers=headers)
