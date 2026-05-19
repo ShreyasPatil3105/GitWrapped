@@ -8,36 +8,49 @@ router = APIRouter()
 @router.get("/profile/{username}")
 def get_profile(username: str):
 
-    url = f"https://api.github.com/users/{username}"
+    try:
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {os.getenv('GITHUB_TOKEN')}",
-        "User-Agent": "GitWrapped-App"
-    }
+        url = f"https://api.github.com/users/{username}"
 
-    response = requests.get(url, headers=headers)
-
-    if response.status_code != 200:
-        return {
-            "error": f"GitHub user not found ({response.status_code})"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {os.getenv('GITHUB_TOKEN')}",
+            "User-Agent": "GitWrapped-App"
         }
 
-    data = response.json()
+        response = requests.get(url, headers=headers)
 
-    profile_data = {
-        "username": data.get("login"),
-        "name": data.get("name"),
-        "bio": data.get("bio"),
-        "public_repos": data.get("public_repos"),
-        "followers": data.get("followers"),
-        "following": data.get("following"),
-        "profile_url": data.get("html_url"),
-        "avatar": data.get("avatar_url")
-    }
+        print("STATUS:", response.status_code)
 
-    profile_data["developer_analysis"] = analyze_developer(
-        profile_data
-    )
+        data = response.json()
 
-    return profile_data
+        print(data)
+
+        if response.status_code != 200:
+            return {
+                "error": f"GitHub user not found ({response.status_code})"
+            }
+
+        profile_data = {
+            "username": data.get("login"),
+            "name": data.get("name"),
+            "bio": data.get("bio"),
+            "public_repos": data.get("public_repos"),
+            "followers": data.get("followers"),
+            "following": data.get("following"),
+            "profile_url": data.get("html_url"),
+            "avatar": data.get("avatar_url")
+        }
+
+        profile_data["developer_analysis"] = analyze_developer(
+            profile_data
+        )
+
+        return profile_data
+
+    except Exception as e:
+
+        return {
+            "error": str(e)
+        }
+    
